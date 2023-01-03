@@ -1,0 +1,15 @@
+﻿@namespace AntdMangement.Components
+@inherits AntDomComponentBase
+
+<div class="field">
+    <span class="label">@Label</span>
+    <span class="number">@Value</span>
+</div>
+@code
+{
+    [Parameter]
+    public string Label { get; set; }
+
+    [Parameter]
+    public string Value { get; set; }
+}

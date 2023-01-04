@@ -14,11 +14,19 @@
         <FooterView Copyright="2021 Ant Design Blazor" Links="Links"></FooterView>
     </FooterRender>
 </AntDesign.ProLayout.BasicLayout>
-<SettingDrawer />
+@if (IsDev)
+{
+    <SettingDrawer />
+}
 
 @inject HttpClient HttpClient
 @code
 {
+#if DEBUG
+    private readonly bool IsDev=true;
+#else
+    private readonly bool IsDev = false;
+#endif
     private MenuDataItem[] MenuData { get; set; } = { };
 
     protected override async Task OnInitializedAsync()

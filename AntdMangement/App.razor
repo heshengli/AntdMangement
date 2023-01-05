@@ -1,41 +1,12 @@
-﻿@*<CascadingAuthenticationState>
-    <AuthorizeView>
-        <Authorized>
-            <Router AppAssembly="@(typeof(Program).Assembly)">
-                <Found Context="routeData">
-                    <AuthorizeRouteView RouteData="@(routeData)" DefaultLayout="@(typeof(BasicLayout))"></AuthorizeRouteView>
-                </Found>
-                <NotFound>
-                    <PageTitle>Not found</PageTitle>
-                    <LayoutView Layout="@(typeof(BasicLayout))">
-                        <p>Sorry, there's nothing at this address.</p>
-                    </LayoutView>
-                </NotFound>
-            </Router>
-            <AntContainer />
-        </Authorized>
-        <NotAuthorized>
-            <RedirectToLogin />
-        </NotAuthorized>
-    </AuthorizeView>
-</CascadingAuthenticationState>*@
-<CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(Program).Assembly">
-        <Found Context="routeData">
-            <AuthorizeView>
-                <Authorized>
-                    <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(BasicLayout)" />
-                </Authorized>
-                <NotAuthorized>
-                    <RedirectToLogin />
-                </NotAuthorized>
-            </AuthorizeView>
-        </Found>
-        <NotFound>
-            <PageTitle>Not found</PageTitle>
-            <LayoutView Layout="@typeof(BasicLayout)">
-                <p>Sorry, there's nothing at this address.</p>
-            </LayoutView>
-        </NotFound>
-    </Router>
-</CascadingAuthenticationState>
+﻿<Router AppAssembly="@typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(BasicLayout)">
+        </RouteView>
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="@typeof(BasicLayout)">
+            <p>Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>

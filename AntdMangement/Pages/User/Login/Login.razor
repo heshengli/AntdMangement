@@ -1,52 +1,28 @@
 ﻿@namespace AntdMangement.Pages.User
 @layout UserLayout
 @page "/user/login"
+@using AntdMangement.RequestModels.Login;
+@using System.Text.Json;
 
 <div class="main__b__0">
     <div class="login">
         <Form Model="@_model" OnFinish="HandleSubmit">
-            <Tabs ActiveKey="@context.LoginType">
-                <TabPane Key="1" Tab="Account Login">
-                    <FormItem>
-                        <AntDesign.Input Placeholder="Username: admin or user" Size="large" @bind-Value="@context.UserName">
-                            <Prefix><Icon Type="user" /></Prefix>
-                        </AntDesign.Input>
-                    </FormItem>
-                    <FormItem>
-                        <AntDesign.Input Placeholder="Password: ant.design" Size="large" @bind-Value="@context.Password" Type="password">
-                            <Prefix><Icon Type="lock" /></Prefix>
-                        </AntDesign.Input>
-                    </FormItem>
-                </TabPane>
-                <TabPane Key="2" Tab="Mobile Login">
-                    <FormItem>
-                        <AntDesign.Input Placeholder="Phone Number" Size="large" @bind-Value="@context.Mobile">
-                            <Prefix><Icon Type="mobile" /></Prefix>
-                        </AntDesign.Input>
-                    </FormItem>
-                    <FormItem>
-                        <Row Gutter="8">
-                            <AntDesign.Col Span="16">
-                                <AntDesign.Input Placeholder="Verification code" Size="large" @bind-Value="@context.Captcha">
-                                    <Prefix><Icon Type="mail" /></Prefix>
-                                </AntDesign.Input>
-                            </AntDesign.Col>
-                            <AntDesign.Col Span="8">
-                                <Button Size="large" Block OnClick="GetCaptcha">Verify</Button>
-                            </AntDesign.Col>
-                        </Row>
-                    </FormItem>
-                </TabPane>
-            </Tabs>
+            <FormItem>
+                <AntDesign.Input Placeholder="用户名" Size="large" @bind-Value="@context.UserName">
+                    <Prefix><Icon Type="user" /></Prefix>
+                </AntDesign.Input>
+            </FormItem>
+            <FormItem>
+                <AntDesign.Input Placeholder="密码" Size="large" @bind-Value="@context.Password" Type="password">
+                    <Prefix><Icon Type="lock" /></Prefix>
+                </AntDesign.Input>
+            </FormItem>
             <div>
                 <Checkbox Checked="@context.AutoLogin">
-                    Auto Login
+                    自动登录
                 </Checkbox>
-                <a style="float: right;">
-                    Forgot Password
-                </a>
             </div>
-            <Button Type="primary" HtmlType="submit" Class="submit" Size="large" Block>Log in </Button>
+            <Button Type="primary" HtmlType="submit" Class="submit" Size="large" Block>立即登录</Button>
         </Form>
     </div>
 </div>
@@ -54,27 +30,48 @@
 {
     private readonly LoginParamsType _model = new LoginParamsType();
 
-    [Inject] public NavigationManager NavigationManager { get; set; }
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
 
-    [Inject] public IAccountService AccountService { get; set; }
+    [Inject]
+    public IAccountService AccountService { get; set; }
 
-    [Inject] public MessageService Message { get; set; }
+    [Inject]
+    public MessageService Message { get; set; }
 
-    public void HandleSubmit()
+    [Inject]
+    ILocalStorageService localStorage { get; set; }
+
+    [Inject]
+    public HttpClient HttpClient { get; set; }
+
+    [Inject]
+    public IHttpClientFactory HttpClientFactory { get; set; }
+
+    public async Task HandleSubmit()
     {
-        if (_model.UserName == "admin" && _model.Password == "ant.design")
+        Console.WriteLine("test:");
+        //var response = await HttpClient.PostAsJsonAsync<LoginParamsType>("/api/auth/login", _model);
+        //var context = await response.Content.ReadAsStringAsync();
+        //var data = JsonSerializer.Deserialize<CommonResult<LoginToken>>(context);
+        var data=await HttpClientFactory.PostAsync<CommonResult<LoginToken>, LoginParamsType>("/api/auth/login", _model);
+
+        if (data?.Code == 2000 && !string.IsNullOrWhiteSpace(data.Data?.Access_token))
         {
+            await localStorage.SetItemAsync<string>(SystemConsts.ACCESS_TOKEN, data.Data?.Access_token);
+            await localStorage.SetItemAsync<string>(SystemConsts.Refresh_Token, data.Data?.Refresh_token);
+            await localStorage.SetItemAsync<string>(SystemConsts.Expires_In, data.Data?.Expires_in.ToString());
+
+            //var MenuData = HttpClient.GetFromJsonAsync<MenuDataItem[]>("data/menu.json");
+
             NavigationManager.NavigateTo("/");
             return;
         }
-
-        if (_model.UserName == "user" && _model.Password == "ant.design") NavigationManager.NavigateTo("/");
     }
 
-    public async Task GetCaptcha()
-    {
-        var captcha = await AccountService.GetCaptchaAsync(_model.Mobile);
-        await Message.Success($"Verification code validated successfully! The verification code is: {captcha}");
-    }
-}
+    //public async Task GetCaptcha()
+    //{
+    //    var captcha = await AccountService.GetCaptchaAsync(_model.Mobile);
+    //    await Message.Success($"Verification code validated successfully! The verification code is: {captcha}");
+    //}
 }

@@ -13,13 +13,11 @@ namespace AntdMangement.Services
 
     public class ChartService : IChartService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly HttpClient _httpClient;
 
-        public ChartService(HttpClient httpClient,IHttpClientFactory httpClientFactory)
+        public ChartService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<ChartDataItem[]> GetVisitDataAsync()

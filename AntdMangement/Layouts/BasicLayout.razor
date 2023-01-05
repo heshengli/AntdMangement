@@ -1,9 +1,8 @@
 ﻿@namespace AntdMangement
 @inherits LayoutComponentBase
 
-<AntDesign.ProLayout.BasicLayout 
-    Logo="@("https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg")"
-    MenuData="MenuData">
+<AntDesign.ProLayout.BasicLayout Logo="@("https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg")"
+                                 MenuData="MenuData">
     <RightContentRender>
         <AntdMangement.Components.RightContent />
     </RightContentRender>
@@ -17,11 +16,15 @@
 @if (IsDev)
 {
     <SettingDrawer />
-}
-
-@inject HttpClient HttpClient
+} 
 @code
 {
+    [Inject]
+    public HttpClient HttpClient { get; set; }
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+    [Inject]
+    ILocalStorageService localStorage { get; set; }
 #if DEBUG
     private readonly bool IsDev=true;
 #else
@@ -32,7 +35,13 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        MenuData = await HttpClient.GetFromJsonAsync<MenuDataItem[]>("data/menu.json");
+
+        var accessToken = await localStorage.GetItemAsync<string>(SystemConsts.ACCESS_TOKEN);
+        if (string.IsNullOrWhiteSpace(accessToken))
+        {
+            NavigationManager.NavigateTo("/user/login");
+        }
+        //MenuData = await HttpClient.GetFromJsonAsync<MenuDataItem[]>("data/menu.json");
     }
 
     public LinkItem[] Links { get; set; } =

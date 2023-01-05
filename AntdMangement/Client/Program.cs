@@ -1,9 +1,10 @@
 using AntDesign.ProLayout;
-using AntdMangement.Extensions;
 using AntdMangement.Services;
 using AntdMangement.Store;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using System.Net;
+using System.Net.Http;
 
 namespace AntdMangement
 {
@@ -16,25 +17,21 @@ namespace AntdMangement
 
 
             var baseAddress = builder.Configuration["AppSettings:ApiUrl"];
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(baseAddress) });
 
-            builder.Services.AddHttpClient("AntdMangement.ServerAPI",
-                client => client.BaseAddress = new Uri(baseAddress))
-                .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
+            builder.Services.AddHttpClient("AntdMangement.ServerAPI", client =>
+            {
+                client.BaseAddress = new Uri(baseAddress);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.DefaultRequestHeaders.Add("mode", "no-cors");
+                client.DefaultRequestHeaders.Add("cache", "no-store");
+                client.DefaultRequestHeaders.Add("credentials", "include");
+            });
 
             builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
                 .CreateClient("AntdMangement.ServerAPI"));
 
-            builder.Services.AddApiAuthorization<RemoteAppState, OidcAccount>(options =>
-            {
-                options.AuthenticationPaths.LogInPath = "/api/auth";
-
-                options.UserOptions.AuthenticationType = "Bearer";
-                options.ProviderOptions.ConfigurationEndpoint = baseAddress;
-
-            }).AddAccountClaimsPrincipalFactory<RemoteAppState, OidcAccount, PreferencesUserFactory>();
-
-            //builder.Services.AddScoped<AuthenticationStateProvider, MockAuthenticationStateProvider>();
+            builder.Services.AddBlazoredLocalStorageAsSingleton();
 
             builder.Services.AddAntDesign();
             builder.Services.Configure<ProSettings>(builder.Configuration.GetSection("ProSettings"));

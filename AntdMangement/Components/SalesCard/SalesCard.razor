@@ -122,10 +122,10 @@
 
     private async Task OnTabChanged(string activeKey)
     {
-        var data = await ChartService.GetSalesDataAsync();
-        if (activeKey == "1")
-            await _saleChart.ChangeData(data);
-        else
-            await _visitChart.ChangeData(data);
+        //var data = await ChartService.GetSalesDataAsync();
+        //if (activeKey == "1")
+        //    await _saleChart.ChangeData(data);
+        //else
+        //    await _visitChart.ChangeData(data);
     }
 }

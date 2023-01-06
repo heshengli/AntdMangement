@@ -1,4 +1,6 @@
-﻿namespace AntdMangement.RequestModels
+﻿using System.Text.Json.Serialization;
+
+namespace AntdMangement.RequestModels
 {
     /// <summary>
     /// 列表
@@ -26,6 +28,7 @@
         {
 
         }
+        [JsonPropertyName("data")]
         public T Data { get; set; }
 
     }
@@ -45,8 +48,10 @@
             Code = code;
             Message = message;
         }
+        [JsonPropertyName("code")]
 
         public int Code { get; set; }
+        [JsonPropertyName("message")]
 
         public string Message { get; set; }
     }

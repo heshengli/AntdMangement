@@ -50,13 +50,10 @@
 
     public async Task HandleSubmit()
     {
-        Console.WriteLine("test:");
-        //var response = await HttpClient.PostAsJsonAsync<LoginParamsType>("/api/auth/login", _model);
-        //var context = await response.Content.ReadAsStringAsync();
-        //var data = JsonSerializer.Deserialize<CommonResult<LoginToken>>(context);
-        var data=await HttpClientFactory.PostAsync<CommonResult<LoginToken>, LoginParamsType>("/api/auth/login", _model);
-
-        if (data?.Code == 2000 && !string.IsNullOrWhiteSpace(data.Data?.Access_token))
+        var data = await HttpClient.PostAsync<CommonResult<LoginToken>>("/api/auth/login", _model);
+        if (data == null)
+            return;
+        if (data.Code == 2000 && !string.IsNullOrWhiteSpace(data.Data.Access_token))
         {
             await localStorage.SetItemAsync<string>(SystemConsts.ACCESS_TOKEN, data.Data?.Access_token);
             await localStorage.SetItemAsync<string>(SystemConsts.Refresh_Token, data.Data?.Refresh_token);
@@ -68,10 +65,4 @@
             return;
         }
     }
-
-    //public async Task GetCaptcha()
-    //{
-    //    var captcha = await AccountService.GetCaptchaAsync(_model.Mobile);
-    //    await Message.Success($"Verification code validated successfully! The verification code is: {captcha}");
-    //}
 }

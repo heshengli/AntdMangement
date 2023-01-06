@@ -1,11 +1,14 @@
-﻿namespace AntdMangement.RequestModels.Login
+﻿using System.Text.Json.Serialization;
+
+namespace AntdMangement.RequestModels.Login
 {
     public class LoginToken
     {
-        public double Expires_in;
-
+        [JsonPropertyName("expires_in")]
+        public long Expires_in;
+        [JsonPropertyName("access_token")]
         public string Access_token;
-
+        [JsonPropertyName("refresh_token")]
         public string Refresh_token;
     }
 }

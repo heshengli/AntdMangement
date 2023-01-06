@@ -4,7 +4,6 @@ using AntdMangement.Store;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using System.Net;
-using System.Net.Http;
 
 namespace AntdMangement
 {
@@ -16,17 +15,21 @@ namespace AntdMangement
             builder.RootComponents.Add<App>("#app");
 
 
+#if DEBUG
             var baseAddress = builder.Configuration["AppSettings:ApiUrl"];
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(baseAddress) });
-
             builder.Services.AddHttpClient("AntdMangement.ServerAPI", client =>
             {
                 client.BaseAddress = new Uri(baseAddress);
-                client.DefaultRequestHeaders.Add("Accept", "application/json");
-                client.DefaultRequestHeaders.Add("mode", "no-cors");
-                client.DefaultRequestHeaders.Add("cache", "no-store");
-                client.DefaultRequestHeaders.Add("credentials", "include");
             });
+#else
+            builder.Services.AddScoped(sp => new HttpClient()
+            { 
+                BaseAddress = new Uri(builder.HostEnvironment.BaseAddress),         
+            });
+#endif
+
+
+
 
             builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
                 .CreateClient("AntdMangement.ServerAPI"));
